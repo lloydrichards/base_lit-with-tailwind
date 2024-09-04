@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  :host {
+    --_background: var(--background, 0 0% 100%);
+    --_foreground: var(--foreground, 222.2 47.4% 11.2%);
+
+    --_primary: var(--primary, 222.2 47.4% 11.2%);
+    --_primary-foreground: var(--primary-foreground, 210 40% 98%);
+
+    --_secondary: var(--secondary210 40% 96.1%);
+    --_secondary-foreground: var(--secondary-foreground, 222.2 47.4% 11.2%);
+
+    --_destructive: var(--destructive, 0 100% 50%);
+    --_destructive-foreground: var(--destructive-foreground, 210 40% 98%);
+
+    --_border: var(--border, 214.3 31.8% 91.4%);
+    --_input: var(--input, 214.3 31.8% 91.4%);
+    --_ring: var(--ring, 215 20.2% 65.1%);
+
+    --_radius: var(--radius, 0.5rem);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
