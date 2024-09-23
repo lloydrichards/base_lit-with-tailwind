@@ -409,22 +409,22 @@ done in shadcn/ui:
 +  theme: {
 +    extend: {
 +      colors: {
-+        border: "hsl(var(--border))",
-+        input: "hsl(var(--input))",
-+        ring: "hsl(var(--ring))",
-+        background: "hsl(var(--background))",
-+        foreground: "hsl(var(--foreground))",
++        border: "hsl(var(--_border))",
++        input: "hsl(var(--_input))",
++        ring: "hsl(var(--_ring))",
++        background: "hsl(var(--_background))",
++        foreground: "hsl(var(--_foreground))",
 +        primary: {
-+          DEFAULT: "hsl(var(--primary))",
-+          foreground: "hsl(var(--primary-foreground))",
++          DEFAULT: "hsl(var(--_primary))",
++          foreground: "hsl(var(--_primary-foreground))",
 +        },
 +        secondary: {
-+          DEFAULT: "hsl(var(--secondary))",
-+          foreground: "hsl(var(--secondary-foreground))",
++          DEFAULT: "hsl(var(--_secondary))",
++          foreground: "hsl(var(--_secondary-foreground))",
 +        },
 +        destructive: {
-+          DEFAULT: "hsl(var(--destructive))",
-+          foreground: "hsl(var(--destructive-foreground))",
++          DEFAULT: "hsl(var(--_destructive))",
++          foreground: "hsl(var(--_destructive-foreground))",
 +        },
 +      },
 +    },
