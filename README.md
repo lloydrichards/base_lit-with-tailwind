@@ -421,7 +421,7 @@ that can be overridden by user defined css variables:
 +    --_primary: var(--primary, hsl(222.2 47.4% 11.2%));
 +    --_primary-foreground: var(--primary-foreground, hsl(210 40% 98%));
 +
-+    --_secondary: var(--secondary hsl(210 40% 96.1%));
++    --_secondary: var(--secondary, hsl(210 40% 96.1%));
 +    --_secondary-foreground: var(
 +      --secondary-foreground,
 +      hsl(222.2 47.4% 11.2%)
