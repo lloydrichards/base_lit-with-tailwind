@@ -1,4 +1,4 @@
-# How to: Setup Lit with Tailwind
+# How to: Setup Lit with Tailwind v4
 
 ## 1. Create a vite project
 
@@ -43,7 +43,7 @@ First move the index.html file to the `src` directory.
 
 Now create a `lib` directory and move the `assets`. Now create a components
 folder inside lib and move the `my-element.ts` file to the `lib` directory.
-Finally create a main.ts file in the `lib` directory and export the
+Finally create a `main.ts` file in the `lib` directory and export the
 `my-element.ts` file.
 
 ```diff
@@ -137,7 +137,6 @@ export default defineConfig({
       external: ["react", "react-dom", "react/jsx-runtime"],
       output: {
         globals: {
-          preserveModules: true,
           react: "React",
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "react/jsx-runtime",
@@ -215,28 +214,22 @@ Finally, update the `package.json` file to point to the `dist/` files.
 First install the required dependencies:
 
 ```bash
-bun add -D tailwindcss@latest postcss@latest autoprefixer@latest
+bun add -D tailwindcss @tailwindcss/vite
 ```
 
-Then run the following command to generate the `tailwind.config.js` and
-`postcss.config.js` files:
-
-```bash
-npx tailwindcss init -p
-```
-
-Now update the `tailwind.config.js` file to generate content from the `lib`
-directory:
+Add the tailwind plugin to the `vite.config.ts` file:
 
 ```diff
- /** @type {import('tailwindcss').Config} */
- export default {
-+  content: ["lib/**/*.{ts,html,css,scss}"],
-   theme: {
-     extend: {},
-   },
-   plugins: [],
- }
+import { defineConfig } from "vite";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
+import tsconfigPaths from "vite-tsconfig-paths";
++import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
++  plugins: [tsconfigPaths(), dts({ rollupTypes: true }), tailwindcss()],
+  // ...rest of config
+});
 ```
 
 In the `lib` directory, create a `shared` folder and add two files:
@@ -297,9 +290,7 @@ export declare const TW: <T extends LitMixin>(superClass: T) => T;
 ### tailwind.global.css
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 ```
 
 ## 5. Using Tailwind CSS in your components
@@ -399,74 +390,64 @@ add the classRegex to the settings.
 }
 ```
 
-Now we can extend the theme in the `tailwind.config.js` file similar to how its
-done in shadcn/ui:
-
-```diff
- /** @type {import('tailwindcss').Config} */
- export default {
-   content: ["lib/**/*.{ts,html,css,scss}"],
-+  theme: {
-+    extend: {
-+      colors: {
-+        border: "hsl(var(--_border))",
-+        input: "hsl(var(--_input))",
-+        ring: "hsl(var(--_ring))",
-+        background: "hsl(var(--_background))",
-+        foreground: "hsl(var(--_foreground))",
-+        primary: {
-+          DEFAULT: "hsl(var(--_primary))",
-+          foreground: "hsl(var(--_primary-foreground))",
-+        },
-+        secondary: {
-+          DEFAULT: "hsl(var(--_secondary))",
-+          foreground: "hsl(var(--_secondary-foreground))",
-+        },
-+        destructive: {
-+          DEFAULT: "hsl(var(--_destructive))",
-+          foreground: "hsl(var(--_destructive-foreground))",
-+        },
-+      },
-+    },
-+  },
-   plugins: [],
- };
-```
-
-Next we can update the `tailwind.global.css` file to use the
+Now we can update the `tailwind.global.css` file to use the
 [pseudo-private properties](https://lea.verou.me/blog/2021/10/custom-properties-with-defaults/)
 that can be overridden by user defined css variables:
 
 ```diff
- @tailwind base;
- @tailwind components;
- @tailwind utilities;
+@import "tailwindcss";
 
-+@layer components {
++@theme inline {
++  --color-border: var(--_border);
++  --color-input: var(--_input);
++  --color-ring: var(--_ring);
++  --color-background: var(--_background);
++  --color-foreground: var(--_foreground);
++
++  --color-primary: var(--_primary);
++  --color-primary-foreground: var(--_primary-foreground);
++
++  --color-secondary: var(--_secondary);
++  --color-secondary-foreground: var(--_secondary-foreground);
++
++  --color-destructive: var(--_destructive);
++  --color-destructive-foreground: var(--_destructive-foreground);
++}
++@layer base {
 +  :host {
-+    --_background: var(--background, 0 0% 100%);
-+    --_foreground: var(--foreground, 222.2 47.4% 11.2%);
++    --_background: var(--background, hsl(0 0% 100%));
++    --_foreground: var(--foreground, hsl(222.2 47.4% 11.2%));
 +
-+    --_primary: var(--primary, 222.2 47.4% 11.2%);
-+    --_primary-foreground: var(--primary-foreground, 210 40% 98%);
++    --_primary: var(--primary, hsl(222.2 47.4% 11.2%));
++    --_primary-foreground: var(--primary-foreground, hsl(210 40% 98%));
 +
-+    --_secondary: var(--secondary210 40% 96.1%);
-+    --_secondary-foreground: var(--secondary-foreground, 222.2 47.4% 11.2%);
++    --_secondary: var(--secondary hsl(210 40% 96.1%));
++    --_secondary-foreground: var(
++      --secondary-foreground,
++      hsl(222.2 47.4% 11.2%)
++    );
 +
-+    --_destructive: var(--destructive, 0 100% 50%);
-+    --_destructive-foreground: var(--destructive-foreground, 210 40% 98%);
++    --_destructive: var(--destructive, hsl(0 100% 50%));
++    --_destructive-foreground: var(--destructive-foreground, hsl(210 40% 98%));
 +
-+    --_border: var(--border, 214.3 31.8% 91.4%);
-+    --_input: var(--input, 214.3 31.8% 91.4%);
-+    --_ring: var(--ring, 215 20.2% 65.1%);
++    --_border: var(--border, hsl(214.3 31.8% 91.4%));
++    --_input: var(--input, hsl(214.3 31.8% 91.4%));
++    --_ring: var(--ring, hsl(215 20.2% 65.1%));
 +
 +    --_radius: var(--radius, 0.5rem);
 +  }
 +}
 +
 +@layer base {
-+  * {
-+    @apply border-border;
++  *,
++  ::after,
++  ::before,
++  ::backdrop,
++  ::file-selector-button {
++    border-color: var(--color-border, currentColor);
++    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
++    -moz-box-sizing: border-box; /* Firefox, other Gecko */
++    box-sizing: border-box; /* Opera/IE 8+ */
 +  }
 +}
 ```
