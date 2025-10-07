@@ -2,10 +2,12 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
+import tailwindcss from '@tailwindcss/vite'
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [tsconfigPaths(), dts({ rollupTypes: true })],
+  plugins: [tsconfigPaths(), dts({ rollupTypes: true }),tailwindcss()],
   build: {
     copyPublicDir: false,
     lib: {
