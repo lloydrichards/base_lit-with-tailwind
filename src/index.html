@@ -11,8 +11,19 @@
   <body>
     <style>
       :root {
-        --destructive: hsl(6 93% 71%);
-        --destructive-foreground: hsl(0 0 0%);
+        --destructive: oklch(0.65 0.22 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
+
+        --primary: oklch(0.65 0.25 264);
+        --primary-foreground: oklch(0.985 0.001 106.423);
+      }
+
+      .dark {
+        --destructive: oklch(0.72 0.19 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
+
+        --primary: oklch(0.75 0.18 264);
+        --primary-foreground: oklch(0.147 0.004 49.25);
       }
     </style>
     <my-element variant="destructive" size="lg">
