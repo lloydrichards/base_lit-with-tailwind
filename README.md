@@ -259,20 +259,40 @@ add a new file `tailwind.global.css`.
 
 ```typescript
 import { adoptStyles, type LitElement, unsafeCSS } from "lit";
-import style from "../styles/tailwind.global.css?inline";
+import tailwindCss from "../styles/tailwind.global.css?inline";
 
 declare global {
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  // biome-ignore lint/suspicious/noExplicitAny: Required for mixin pattern compatibility
   export type LitMixin<T = unknown> = new (...args: any[]) => T & LitElement;
 }
 
-const stylesheet = unsafeCSS(style);
+export const tailwind = unsafeCSS(tailwindCss);
+
+// https://github.com/tailwindlabs/tailwindcss/issues/15005
+// Set all @property values from tailwind on the document
+// And only do this once (check if there is already a stylesheet with the same content)
+if (
+  tailwind.styleSheet &&
+  document?.adoptedStyleSheets &&
+  !document.adoptedStyleSheets.some(
+    (sheet) =>
+      sheet.cssRules[0]?.cssText === tailwind.styleSheet?.cssRules[0].cssText
+  )
+) {
+  const propertiesSheet = new CSSStyleSheet();
+  let code = tailwind.cssText;
+  code = code
+    .replaceAll("inherits: false", "inherits: true")
+    .substring(code.indexOf("@property"));
+  propertiesSheet.replaceSync(code);
+  document.adoptedStyleSheets.push(propertiesSheet);
+}
 
 export const TW = <T extends LitMixin>(superClass: T): T =>
   class extends superClass {
     connectedCallback() {
       super.connectedCallback();
-      if (this.shadowRoot) adoptStyles(this.shadowRoot, [stylesheet]);
+      if (this.shadowRoot) adoptStyles(this.shadowRoot, [tailwind]);
     }
   };
 ```
@@ -404,50 +424,109 @@ that can be overridden by user defined css variables:
 +  --color-background: var(--_background);
 +  --color-foreground: var(--_foreground);
 +
++  --color-card: var(--_card);
++  --color-card-foreground: var(--_card-foreground);
++
++  --color-popover: var(--_popover);
++  --color-popover-foreground: var(--_popover-foreground);
++
 +  --color-primary: var(--_primary);
 +  --color-primary-foreground: var(--_primary-foreground);
 +
 +  --color-secondary: var(--_secondary);
 +  --color-secondary-foreground: var(--_secondary-foreground);
 +
++  --color-muted: var(--_muted);
++  --color-muted-foreground: var(--_muted-foreground);
++
++  --color-accent: var(--_accent);
++  --color-accent-foreground: var(--_accent-foreground);
++
 +  --color-destructive: var(--_destructive);
 +  --color-destructive-foreground: var(--_destructive-foreground);
 +}
 +@layer base {
++  :root,
 +  :host {
-+    --_background: var(--background, hsl(0 0% 100%));
-+    --_foreground: var(--foreground, hsl(222.2 47.4% 11.2%));
++    --_background: var(--background, oklch(1 0 0));
++    --_foreground: var(--foreground, oklch(0.147 0.004 49.25));
 +
-+    --_primary: var(--primary, hsl(222.2 47.4% 11.2%));
-+    --_primary-foreground: var(--primary-foreground, hsl(210 40% 98%));
++    --_card: var(--card, oklch(1 0 0));
++    --_card-foreground: var(--card-foreground, oklch(0.147 0.004 49.25));
 +
-+    --_secondary: var(--secondary, hsl(210 40% 96.1%));
-+    --_secondary-foreground: var(
-+      --secondary-foreground,
-+      hsl(222.2 47.4% 11.2%)
++    --_popover: var(--popover, oklch(1 0 0));
++    --_popover-foreground: var(--popover-foreground, oklch(0.147 0.004 49.25));
++
++    --_primary: var(--primary, oklch(0.216 0.006 56.043));
++    --_primary-foreground: var(
++      --primary-foreground,
++      oklch(0.985 0.001 106.423)
 +    );
 +
-+    --_destructive: var(--destructive, hsl(0 100% 50%));
-+    --_destructive-foreground: var(--destructive-foreground, hsl(210 40% 98%));
++    --_secondary: var(--secondary, oklch(0.97 0.001 106.424));
++    --_secondary-foreground: var(
++      --secondary-foreground,
++      oklch(0.216 0.006 56.043)
++    );
 +
-+    --_border: var(--border, hsl(214.3 31.8% 91.4%));
-+    --_input: var(--input, hsl(214.3 31.8% 91.4%));
-+    --_ring: var(--ring, hsl(215 20.2% 65.1%));
++    --_muted: var(--muted, oklch(0.97 0.001 106.424));
++    --_muted-foreground: var(--muted-foreground, oklch(0.553 0.013 58.071));
++
++    --_accent: var(--accent, oklch(0.97 0.001 106.424));
++    --_accent-foreground: var(--accent-foreground, oklch(0.216 0.006 56.043));
++
++    --_destructive: var(--destructive, oklch(0.577 0.245 27.325));
++    --_destructive-foreground: var(
++      --destructive-foreground,
++      oklch(0.985 0.001 106.423)
++    );
++
++    --_border: var(--border, oklch(0.923 0.003 48.717));
++    --_input: var(--input, oklch(0.923 0.003 48.717));
++    --_ring: var(--ring, oklch(0.709 0.01 56.259));
 +
 +    --_radius: var(--radius, 0.5rem);
 +  }
-+}
 +
-+@layer base {
-+  *,
-+  ::after,
-+  ::before,
-+  ::backdrop,
-+  ::file-selector-button {
-+    border-color: var(--color-border, currentColor);
-+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
-+    box-sizing: border-box; /* Opera/IE 8+ */
++  .dark,
++  :host(.dark),
++  :host-context(.dark) {
++    --_background: var(--background, oklch(0.147 0.004 49.25));
++    --_foreground: var(--foreground, oklch(0.985 0.001 106.423));
++
++    --_card: var(--card, oklch(0.216 0.006 56.043));
++    --_card-foreground: var(--card-foreground, oklch(0.985 0.001 106.423));
++
++    --_popover: var(--popover, oklch(0.216 0.006 56.043));
++    --_popover-foreground: var(
++      --popover-foreground,
++      oklch(0.985 0.001 106.423)
++    );
++
++    --_primary: var(--primary, oklch(0.923 0.003 48.717));
++    --_primary-foreground: var(--primary-foreground, oklch(0.216 0.006 56.043));
++
++    --_secondary: var(--secondary, oklch(0.268 0.007 34.298));
++    --_secondary-foreground: var(
++      --secondary-foreground,
++      oklch(0.985 0.001 106.423)
++    );
++
++    --_muted: var(--muted, oklch(0.268 0.007 34.298));
++    --_muted-foreground: var(--muted-foreground, oklch(0.709 0.01 56.259));
++
++    --_accent: var(--accent, oklch(0.268 0.007 34.298));
++    --_accent-foreground: var(--accent-foreground, oklch(0.985 0.001 106.423));
++
++    --_destructive: var(--destructive, oklch(0.704 0.191 22.216));
++    --_destructive-foreground: var(
++      --destructive-foreground,
++      oklch(0.985 0.001 106.423)
++    );
++
++    --_border: var(--border, oklch(1 0 0 / 10%));
++    --_input: var(--input, oklch(1 0 0 / 15%));
++    --_ring: var(--ring, oklch(0.553 0.013 58.071));
 +  }
 +}
 ```
@@ -465,8 +544,13 @@ css variables.
   <body>
     <style>
       :root {
-        --destructive: 6 93% 71%;
-        --destructive-foreground: 0 0 0%;
+        --destructive: oklch(0.65 0.22 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
+      }
+
+      .dark {
+        --destructive: oklch(0.72 0.19 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
       }
     </style>
     <my-element variant="destructive" size="lg">
