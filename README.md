@@ -383,7 +383,7 @@ and extending the theme similar to how its done using shadcn/ui.
 First, install the required dependencies:
 
 ```bash
-bun add class-variance-authority tailwind-merge clsx
+bun add class-variance-authority tailwind-merge clsx tw-animate-css
 ```
 
 Then lets create a `utils.ts` file in the `lib/shared` directory and add the
@@ -416,7 +416,9 @@ that can be overridden by user defined css variables:
 
 ```diff
 @import "tailwindcss";
-
++@import "tw-animate-css";
++
++@custom-variant dark (&:is(.dark *));
 +@theme inline {
 +  --color-border: var(--_border);
 +  --color-input: var(--_input);
