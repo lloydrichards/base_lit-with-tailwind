@@ -531,6 +531,15 @@ that can be overridden by user defined css variables:
 +    --_ring: var(--ring, oklch(0.553 0.013 58.071));
 +  }
 +}
++
++@layer base {
++  * {
++    @apply border-border outline-ring/50;
++  }
++  body {
++    @apply bg-background text-foreground;
++  }
++}
 ```
 
 This setup allows you to use the `cva` function to apply variants that combine
